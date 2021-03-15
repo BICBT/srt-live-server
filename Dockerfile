@@ -5,41 +5,44 @@ FROM ubuntu:20.04
 MAINTAINER BICBT
 
 # ENV 设置环境变量
+ENV DEBIAN_FRONTEND noninteractive
 
 # Install tools & dependencies
-RUN sudo apt-get update &&                  \
-    sudo apt-get upgrade &&                 \
-    sudo apt-get install    tclsh           \    
-                            pkg-config      \
-                            cmake           \
-                            libssl-dev      \
-                            unzip           \
-                            build-essential 
+RUN apt-get update && \
+    apt-get install -y wget \
+        tclsh           \
+        pkg-config      \
+        cmake           \
+        libssl-dev      \
+        unzip           \
+        build-essential \
+        libz-dev
 
 # Download and Install Haivision SRT
-RUN mkdir -p /usr/local/haivision-srt && \
-    cd /usr/local/haivision-srt && \
+RUN cd /tmp && \
     wget -O haivision-srt.zip https://github.com/Haivision/srt/archive/master.zip && \
     unzip haivision-srt.zip && \
-    cd haivision-srt && \
+    mv srt-master /usr/local/haivision-srt && \
+    cd /usr/local/haivision-srt && \
     ./configure && \
     make && make install && \
-    rm -rf /usr/local/haivision-srt.zip
+    rm -rf /tmp/haivision-srt.zip && \
+    ldconfig
 
 # Download and Install SRT-LIVE-SERVER
-RUN mkdir -p /usr/local/srt-live-server && \
-    cd /usr/local/srt-live-server && \
+RUN cd /tmp && \
     wget -O srt-live-server.zip https://github.com/BICBT/srt-live-server/archive/master.zip && \
     unzip srt-live-server.zip && \
-    cd srt-live-server && \
-    sudo make && make install && \
-    rm -rf /usr/local/srt-live-server.zip
-
-# Setup Config File
-COPY sls.conf /usr/local/srt-live-server/sls.conf
+    mv srt-live-server-master /usr/local/srt-live-server && \
+    cd /usr/local/srt-live-server && \
+    make && \
+    rm -rf /tmp/srt-live-server.zip
 
 # Set WORKDIR
 WORKDIR /usr/local/srt-live-server
+
+# Setup Config File
+COPY sls.conf sls.conf
 
 # EXPOSE PORT
 EXPOSE 8080
