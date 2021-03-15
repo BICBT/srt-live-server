@@ -42,7 +42,7 @@ COPY sls.conf /usr/local/srt-live-server/sls.conf
 WORKDIR /usr/local/srt-live-server
 
 # EXPOSE PORT
-EXPOSE 7654
+EXPOSE 8080
 
 #CMD
 CMD ["./bin/sls", "-c", "sls.conf"]
